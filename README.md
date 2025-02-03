@@ -4,6 +4,6 @@ Repository of my work in NLP Subject.
 
 ## Branches of the repository
 
-|   main   | stable and functional code                                 |
-| :------: | ---------------------------------------------------------- |
-| **dev** | code in progress, unstable version that could have error  |
+|            main            | **dev**                                            |
+| :------------------------: | -------------------------------------------------------- |
+| stable and functional code | code in progress, unstable version that could have error |
