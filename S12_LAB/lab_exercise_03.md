@@ -95,16 +95,6 @@ To help users understand the assistant's capabilities, a set of example question
 
 **Solution** : Created a detailed system prompt that frames the model as an F1 expert and includes specific instructions for analyzing race scenarios.
 
-## Future Enhancements
-
-Based on the development process, several potential enhancements were identified:
-
-1. **Race Data Integration** : Connect to live F1 timing data during race weekends
-2. **Circuit Visualization** : Add interactive circuit maps when discussing track-specific strategies
-3. **Team-Specific Analysis** : Allow users to select their favorite team for tailored strategic insights
-4. **Historical Race Analysis** : Add specific data about historical races for more accurate comparisons
-5. **Mobile Optimization** : Further refine the UI for mobile devices during trackside use
-
 ## Conclusion
 
 The development of the F1 Strategy Assistant demonstrates how specialized LLM applications can provide value in specific domains. By combining Streamlit's rapid development capabilities with LM Studio's flexible model hosting, a powerful tool for F1 enthusiasts was created with relatively simple code.
