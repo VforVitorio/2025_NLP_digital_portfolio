@@ -115,3 +115,91 @@ Respond in an educational and detailed manner, explaining technical concepts.
 
 
 ###################################################################################
+
+
+####################### MAIN USER INTERFACE #####################
+
+# In case it does not exist in the session state, we need to initialize the chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        # Add the system prompt as the first message
+        {"role": "system", "content": f1_system_prompt}
+    ]
+
+
+# Displaying previous messages in the chat
+
+for message in st.session_state.messages:
+    # Skip system messages, should not be displayed to the use
+    if message["role"] != "system":
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+
+# For the user understanding , we add predefined example questions in the sidebar
+
+st.sidebar.markdown("### Example Questions")
+
+example_questions = [
+    "What is an undercut and when is it effective?",
+    "If Hamilton was 2 seconds behind Gasly and couldn't pass him at Suzuka, why didn't they try an undercut there?",
+    "How does tire degradation affect race strategy?",
+    "What are the best strategies in Monaco given the difficulty in overtaking?",
+    "Why do teams sometimes sacrifice qualifying position to have different tires in the race?"
+]
+
+
+# Creating buttons for each example questions
+
+for question in example_questions:
+    if st.sidebar.button(question):
+        # Add the selected question to the chat history
+        st.session_state.messages.append({"role": "user", "content": question})
+        # Display questions in the chat
+        with st.chat_message("user"):
+            st.markdown(question)
+
+# Create input field for user questions
+
+prompt = st.chat_input(
+    "Ask about F1 or ask about a hypothetical or real situation")
+if prompt:
+    # Add the user´s message to the chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Display the user's message
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Create a placeholder for the assistant's response
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        message_placeholder.markdown("Analyzing situation...")
+
+        # Prepare the chat messages to send to the LLM
+        # Filter out system messages and then add the system prompt at the beginning
+        chat_messages = [
+            m for m in st.session_state.messages if m["role"] != "system"]
+        chat_messages = [
+            {"role": "system", "content": f1_system_prompt}] + chat_messages
+
+        # Query the LLM with the prepared messages
+        response = query_llm(
+            model=selected_model,
+            messages=chat_messages,
+            temperature=0.7,
+            max_tokens=1000
+        )
+
+        # Process the LLM's response
+        if response:
+            # Extract the text content from the response
+            llm_response = response["choices"][0]["message"]["content"]
+            # Update the placeholder with the response
+            message_placeholder.markdown(llm_response)
+            # Add the response to the chat history
+            st.session_state.messages.append(
+                {"role": "assistant", "content": llm_response})
+        else:
+            # Display an error message if the query failed
+            message_placeholder.markdown(
+                "❌ Error generating response. Please try again.")
