@@ -30,22 +30,26 @@ st.markdown("""
         background-color: #1a1a2e;
     }
     
-    /* Buttons styling */
+    /* Buttons styling with more curved borders and no hover shadow */
     .stButton>button {
         background-color: #6c5ce7;
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 12px;  /* More curved borders */
+        transition: background-color 0.3s;
+        box-shadow: none !important;  /* Remove default shadow */
     }
     .stButton>button:hover {
         background-color: #7f6ff0;
+        box-shadow: none !important;  /* Remove hover shadow */
     }
     
-    /* Input fields */
+    /* Input fields with more curved borders */
     .stTextInput>div>div>input, [data-testid="stChatInput"] {
         background-color: #252540;
         color: white;
         border: 1px solid #6c5ce7;
+        border-radius: 12px;  /* More curved borders */
     }
     
     /* Headers */
@@ -53,11 +57,12 @@ st.markdown("""
         color: white;
     }
     
-    /* Chat messages */
+    /* Chat messages with more curved borders */
     .chat-message {
         padding: 1rem;
-        border-radius: 0.5rem;
+        border-radius: 16px;  /* More curved borders */
         margin-bottom: 1rem;
+        box-shadow: none !important;  /* Remove shadow */
     }
     .user-message {
         background-color: #252540;
@@ -66,16 +71,39 @@ st.markdown("""
         background-color: #3a3a5c;
     }
     
-    /* History items */
+    /* History items with more curved borders */
     .history-item {
         padding: 0.5rem;
-        border-radius: 0.3rem;
+        border-radius: 12px;  /* More curved borders */
         margin-bottom: 0.5rem;
         background-color: #252540;
         cursor: pointer;
+        box-shadow: none !important;  /* Remove shadow */
     }
     .history-item:hover {
         background-color: #333355;
+        box-shadow: none !important;  /* Remove hover shadow */
+    }
+    
+    /* Remove hover effects and shadows from other elements */
+    .element-container:hover, .stAlert:hover, .stTextArea:hover {
+        box-shadow: none !important;
+    }
+    
+    /* Ensure chat container has curved borders too */
+    [data-testid="stChatMessageContent"] {
+        border-radius: 14px !important;
+        overflow: hidden;
+    }
+    
+    /* Add curved borders to select boxes and other controls */
+    .stSelectbox > div > div {
+        border-radius: 12px !important;
+    }
+    
+    /* Adjust chat message avatar containers */
+    [data-testid="stChatMessageAvatar"] {
+        background-color: transparent !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -358,19 +386,33 @@ st.sidebar.info(
 if "selected_example" not in st.session_state:
     st.session_state.selected_example = None
 
+# Track displayed messages to prevent duplicates
+if "displayed_messages" not in st.session_state:
+    st.session_state.displayed_messages = set()
+
 # Display previous messages in the chat
 for message in st.session_state.messages:
     # Skip system messages as they shouldn't be displayed to the user
     if message["role"] != "system":
-        # Add custom CSS classes for styling
-        css_class = "user-message" if message["role"] == "user" else "assistant-message"
+        # Create a simple message identifier based on content
+        message_id = f"{message['role']}_{message['content'][:50]}"
 
-        with st.chat_message(message["role"]):
-            st.markdown(f"""
-            <div class="chat-message {css_class}">
-                {message["content"]}
-            </div>
-            """, unsafe_allow_html=True)
+        # Only display the message if we haven't displayed it already in this session
+        if message_id not in st.session_state.displayed_messages:
+            st.session_state.displayed_messages.add(message_id)
+
+            # Add custom CSS classes for styling
+            css_class = "user-message" if message["role"] == "user" else "assistant-message"
+
+            # Use custom F1-themed icons
+            icon = "🏎️" if message["role"] == "user" else "🏁"
+
+            with st.chat_message(message["role"], avatar=icon):
+                st.markdown(f"""
+                <div class="chat-message {css_class}">
+                    {message["content"]}
+                </div>
+                """, unsafe_allow_html=True)
 
 # Create buttons for each example question
 for i, question in enumerate(example_questions):
@@ -383,6 +425,8 @@ for i, question in enumerate(example_questions):
         # Update the current chat in the chat histories
         current_chat = st.session_state.chat_histories[st.session_state.current_chat_id]
         current_chat["messages"] = st.session_state.messages
+        # Reset displayed messages to avoid issues with the new message
+        st.session_state.displayed_messages = set()
         # Trigger a rerun to process the question
         st.rerun()
 
@@ -396,21 +440,23 @@ if prompt:
     current_chat["messages"] = st.session_state.messages
     # Set as the current prompt to process
     st.session_state.selected_example = prompt
+    # Reset displayed messages to avoid issues with the new message
+    st.session_state.displayed_messages = set()
     # Trigger a rerun to process the question
     st.rerun()
 
 # Process the selected example or user input
 if st.session_state.selected_example:
-    # Display the user's message (already added to messages, so just for visual update)
-    with st.chat_message("user"):
+    # Display the user's message with F1 car icon
+    with st.chat_message("user", avatar="🏎️"):
         st.markdown(f"""
         <div class="chat-message user-message">
             {st.session_state.selected_example}
         </div>
         """, unsafe_allow_html=True)
 
-    # Create a placeholder for the assistant's response
-    with st.chat_message("assistant"):
+    # Create a placeholder for the assistant's response with checkered flag icon
+    with st.chat_message("assistant", avatar="🏁"):
         message_placeholder = st.empty()
         message_placeholder.markdown("Analyzing situation...")
 
@@ -455,4 +501,6 @@ if st.session_state.selected_example:
 
     # Clear the selected example after processing
     st.session_state.selected_example = None
+    # Reset displayed messages for next refresh to include these new messages
+    st.session_state.displayed_messages = set()
 ##########################################################
