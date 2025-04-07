@@ -72,3 +72,46 @@ def query_llm(model, messages, temperature=0.7, max_tokens=2000):
         st.error(f"Error querying model: {e}")
         return None
 #####################################################################
+
+
+#################################### STREAMLIT PAGE #############################
+# Configure the Streamlit page properties
+st.set_page_config(
+    page_title="F1 Strategy Assistant",  # Sets the browser tab title
+    page_icon="🏎️",  # Sets the browser tab icon
+    layout="wide"  # Uses the wide layout for more space
+)
+
+# Add the main title and description
+st.title("🏎️ Formula 1 Assistant")
+st.markdown("Ask any F1-related questions or pose hypothetical race scenarios.")
+
+# Get the available models and create a dropdown selector in the sidebar
+available_models = get_models()
+selected_model = st.sidebar.selectbox(
+    "Select a model",
+    options=available_models if available_models else ["No models available"]
+)
+
+# Define the system prompt that specializes the model in Formula 1
+# This acts as initial instructions for the AI
+f1_system_prompt = """
+You are a Formula 1 expert with extensive knowledge about:
+- Race strategies (undercut, overcut, pit stops, etc)
+- Technical and sporting regulations
+- F1 history and drivers
+- Circuits and their characteristics 
+- Aerodynamics and technical aspects of the cars
+
+Provide detailed and technical answers that are still easy to understand.
+When analyzing hypothetical race situations, consider factors such as:
+- Tire degradation
+- Gaps between cars
+- Rival team strategies
+- Track and weather conditions
+
+Respond in an educational and detailed manner, explaining technical concepts.
+"""
+
+
+###################################################################################
