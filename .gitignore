@@ -8,3 +8,7 @@ S04/corpus.txt
 S04/meditations.txt
 S04/shakes.txt
 bashrc
+S010/best_deberta_ner_model.pt
+S010/best_bert_large_ner_model.pt
+S010/bert_model_original_backup.pt
+S010/best_focused_bert_model.pt
